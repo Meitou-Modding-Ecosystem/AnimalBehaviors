@@ -1,13 +1,13 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <!--
-    The template's mod: rename the folder, this file, the assembly and the namespace to your mod's name (README "Use this template").
-    Built against the game's assemblies, never copied: the game loads them.
+    Animal Behaviors (docs/animal-behaviors.md): the framework for animal mods. The animal registry, sexes and the Hitched job on every mod's
+    hitching posts. Built against the game's assemblies, never copied: the game loads them.
   -->
 
   <PropertyGroup>
-    <AssemblyName>ExampleMod</AssemblyName>
-    <RootNamespace>ExampleMod</RootNamespace>
+    <AssemblyName>AnimalBehaviors</AssemblyName>
+    <RootNamespace>AnimalBehaviors</RootNamespace>
   </PropertyGroup>
 
   <ItemGroup>
@@ -18,6 +18,8 @@
   </ItemGroup>
 
   <ItemGroup>
+    <InternalsVisibleTo Include="AnimalBehaviors.Tests" />
+    <EmbeddedResource Include="Locale/*.json" LogicalName="AnimalBehaviors.Locale.%(Filename).json" WithCulture="false" />
     <None Include="meitou.json" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 
