@@ -35,6 +35,12 @@ public interface IAnimalBehaviorsApi
     IReadOnlyList<AnimalKind> Kinds { get; }
 
     /// <summary>
+    /// The player's pen settings, live: copy them (<see cref="AnimalSettings.Copy"/>) at each check, as for <see cref="Pens.Keep"/> round a
+    /// dependent's own work post.
+    /// </summary>
+    AnimalSettings Settings { get; }
+
+    /// <summary>
     /// The framework's state in the world being built or last built: a dependent's system factory runs after the framework's for the same world,
     /// so it reads that world's state here. Null before the first world.
     /// </summary>

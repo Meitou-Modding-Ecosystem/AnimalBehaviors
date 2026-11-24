@@ -20,7 +20,8 @@ A mod that adds animals, gives them work or has its own hitching post builds on 
 Mark your BUILDING record in your data phase (`IModDataPhase.EditData`): `Sites.MarkHitch(record, capacity)` (capacity 0: no limit). The
 framework reads the marks in its `Initialize`, after every data phase, and offers its one Hitched job (4901) on every marked post, so your post
 and Husbandry's stay separate structures with the same job. `Hitches.PostOf(cold)` gives an animal's post and `Hitches.All(world)` every
-hitched animal with its post.
+hitched animal with its post. To keep an animal working at your own post in a pen round it, call
+`Pens.Keep(world, new Hitched(slot, cold, post), animals.Settings.Copy(), purpose)` once a game second per animal.
 
 ## State
 
