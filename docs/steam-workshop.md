@@ -8,7 +8,7 @@ The commands use these values. Set them once per PowerShell window, with your mo
 first release version:
 
 ```powershell
-$Mod = "ExampleMod"
+$Mod = "AnimalBehaviors"
 $Version = "0.1.0"
 $Work = "$HOME\Downloads\$Mod-Workshop"
 $Watcher = "$env:LOCALAPPDATA\WorkshopWatcher\WorkshopWatcher.ps1"
@@ -18,7 +18,7 @@ $Watcher = "$env:LOCALAPPDATA\WorkshopWatcher\WorkshopWatcher.ps1"
 
 1. Merge `beta` into `main`, then open and merge a PR from `main` into `release` ([Branches](../README.md#branches)).
 2. Wait for the Release workflow on `release`. It tags the merge `<slug>-v<version>` with the version in `meitou.json` (for example
-   `example-mod-v0.1.0`) and creates a release with `<Mod>-<version>.zip` and `<Mod>-<version>.zip.sha256`. If that run fails before
+   `animal-behaviors-v0.1.0`) and creates a release with `<Mod>-<version>.zip` and `<Mod>-<version>.zip.sha256`. If that run fails before
    tagging, `powershell -ExecutionPolicy Bypass -File tools\Tag-Release.ps1` pushes the tag by hand (`-DryRun` only prints the commands).
 
 ## 2. Install Workshop Watcher and sign in to Steam
