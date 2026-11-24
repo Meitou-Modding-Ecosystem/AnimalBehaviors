@@ -71,6 +71,10 @@ public sealed class AnimalBehaviorsSystem : ITickSystem, IStateHashed, IModSaveD
 
     public bool TryHitch(World world, int slot, BuildSite post) => _posts.TryHitch(world, slot, post);
 
+    public BuildSite? PostOf(World world, int slot) => Hitches.Animal(world, slot) is { } cold ? Hitches.Site(world, cold) : null;
+
+    public IReadOnlyList<Hitched> HitchedTo(World world, BuildSite post) => Hitches.At(world, post);
+
     /// <summary>
     /// The debug view: each hitched animal with its post, race, sex, age and hunger.
     /// </summary>

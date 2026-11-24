@@ -88,6 +88,16 @@ public interface IAnimalState
     /// over it, when full.
     /// </summary>
     bool TryHitch(World world, int slot, BuildSite post);
+
+    /// <summary>
+    /// The hitching post the animal in a slot is assigned to, or null (not hitched, dead, or its post is gone or unfinished). Reads only.
+    /// </summary>
+    BuildSite? PostOf(World world, int slot);
+
+    /// <summary>
+    /// The living animals assigned to a hitching post, in slot order. Reads only.
+    /// </summary>
+    IReadOnlyList<Hitched> HitchedTo(World world, BuildSite post);
 }
 
 /// <summary>

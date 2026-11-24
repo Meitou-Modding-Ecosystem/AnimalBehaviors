@@ -67,13 +67,49 @@ public static class Hitches
         var table = world.Characters;
         for (int s = 0; s < table.HighWater; s++)
         {
-            if (!table.Next[s].Alive || table.Cold(s) is not { IsPlayer: true, DiedTick: < 0 } cold || PostOf(cold) is not { } post) continue;
+            if (Animal(world, s) is not { } cold || PostOf(cold) is null) continue;
 
-            if (world.Buildings.Find(post) is { Complete: true } site && site.Owner == world.Player.Faction) list.Add(new Hitched(s, cold, site));
+            if (Site(world, cold) is { } site) list.Add(new Hitched(s, cold, site));
             else Unhitch(cold);
         }
 
         return list;
+    }
+
+    /// <summary>
+    /// The living hitched animals at one post, in slot order. Reads only: a hitch on a post that is gone stays until <see cref="All"/> takes it off.
+    /// </summary>
+    public static List<Hitched> At(World world, BuildSite post)
+    {
+        var list = new List<Hitched>();
+        var table = world.Characters;
+        for (int s = 0; s < table.HighWater; s++)
+        {
+            if (Animal(world, s) is { } cold && PostOf(cold) == post.Id && Site(world, cold) is { } site) list.Add(new Hitched(s, cold, site));
+        }
+
+        return list;
+    }
+
+    /// <summary>
+    /// The finished player post a character is hitched to, or null (not hitched, or its post is gone, unfinished or not the player's). Reads only.
+    /// </summary>
+    public static BuildSite? Site(World world, CharacterCold cold)
+    {
+        if (PostOf(cold) is not { } post) return null;
+
+        return world.Buildings.Find(post) is { Complete: true } site && site.Owner == world.Player.Faction ? site : null;
+    }
+
+    /// <summary>
+    /// The living player character in a slot, or null.
+    /// </summary>
+    public static CharacterCold? Animal(World world, int slot)
+    {
+        var table = world.Characters;
+        if (slot < 0 || slot >= table.HighWater || !table.Next[slot].Alive) return null;
+
+        return table.Cold(slot) is { IsPlayer: true, DiedTick: < 0 } cold ? cold : null;
     }
 
     /// <summary>

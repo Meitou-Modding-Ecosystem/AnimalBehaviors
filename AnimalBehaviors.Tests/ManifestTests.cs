@@ -1,4 +1,5 @@
 using System.Text.Json;
+using Meitou.Content;
 using Meitou.Modding;
 
 namespace AnimalBehaviors.Tests;
@@ -19,5 +20,17 @@ public sealed class ManifestTests
         Assert.NotNull(entry);
         Assert.True(typeof(IMod).IsAssignableFrom(entry));
         Assert.Equal(AnimalBehaviorsMod.Id, root.GetProperty("id").GetString());
+    }
+
+    /// <summary>
+    /// The engine's own reader accepts the manifest; a malformed one refuses the mod in game.
+    /// </summary>
+    [Fact]
+    public void The_engine_reads_the_manifest()
+    {
+        var manifest = CodeModManifest.Read(Path.Combine(AppContext.BaseDirectory, "meitou.json"));
+
+        Assert.Equal(AnimalBehaviorsMod.Id, manifest.Id);
+        Assert.Empty(manifest.DependsOn);
     }
 }
