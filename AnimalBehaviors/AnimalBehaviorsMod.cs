@@ -34,6 +34,11 @@ public sealed class AnimalBehaviorsMod : IMod, IAnimalBehaviorsApi, IModDependen
     readonly AnimalRegistry _registry = new();
 
     /// <summary>
+    /// The dependents' terms for other factions' hitching posts.
+    /// </summary>
+    readonly HitchRules _rules = new();
+
+    /// <summary>
     /// The capped hitching posts' capacities by record id, read from the marks.
     /// </summary>
     Dictionary<string, int> _capacities = [];
@@ -78,7 +83,7 @@ public sealed class AnimalBehaviorsMod : IMod, IAnimalBehaviorsApi, IModDependen
             c.Log("animal-behaviors: supported animals: " + string.Join("; ", _registry.Describe(_races)));
         }
 
-        return new AnimalBehaviorsSystem(Settings, new HitchPosts(_capacities), c.RngPurpose);
+        return new AnimalBehaviorsSystem(Settings, new HitchPosts(_capacities), new ForeignPosts(_rules, c.Log), c.RngPurpose);
     }
 
     /// <summary>
@@ -91,7 +96,7 @@ public sealed class AnimalBehaviorsMod : IMod, IAnimalBehaviorsApi, IModDependen
 
     #region Framework
 
-    public IAnimalBehaviorsRegistry For(ModContext c) => new Registration(_registry, c.Id);
+    public IAnimalBehaviorsRegistry For(ModContext c) => new Registration(_registry, _rules, c.Id);
 
     public AnimalSupport SupportOf(RaceData race) => _registry.SupportOf(race);
 
@@ -103,14 +108,24 @@ public sealed class AnimalBehaviorsMod : IMod, IAnimalBehaviorsApi, IModDependen
 
     public IAnimalState? In(World world) => world.Systems.OfType<AnimalBehaviorsSystem>().FirstOrDefault();
 
-    public void DependentFailed(string modId) => _registry.Drop(modId);
+    public void DependentFailed(string modId)
+    {
+        _registry.Drop(modId);
+        _rules.Drop(modId);
+    }
 
     /// <summary>
     /// One mod's registrations, kept under its id.
     /// </summary>
-    sealed class Registration(AnimalRegistry registry, string owner) : IAnimalBehaviorsRegistry
+    sealed class Registration(AnimalRegistry registry, HitchRules rules, string owner) : IAnimalBehaviorsRegistry
     {
         public void AddAnimal(AnimalKind kind) => registry.AddKind(owner, kind);
+
+        public void AddHitchRule(HitchRule rule)
+        {
+            registry.CheckOpen();
+            rules.Add(owner, rule);
+        }
     }
 
     #endregion

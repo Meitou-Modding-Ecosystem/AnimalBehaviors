@@ -23,6 +23,15 @@ and Husbandry's stay separate structures with the same job. To find which post a
 `HitchedTo` (State below). To keep an animal working at your own post in a pen round it, call
 `Pens.Keep(world, new Hitched(slot, cold, post), animals.Settings.Copy(), purpose)` once a game second per animal.
 
+## Other factions' posts
+
+Animals may be hitched to any faction's post, free unless a rule says otherwise. Add terms in your `Initialize`:
+`animals.For(c).AddHitchRule(use => ...)`. The framework asks every rule, in registration order, when an animal is hitched to another faction's
+post (`use.First`) and at each new game day it stays there, in its serial step, so a rule may change the world: take cats from the player,
+change `use.Owner`'s relations, report a crime. Return null to let it stay, or a text to refuse it: the animal is unhitched and the text floats
+over it, and later rules are not asked. A rule that throws is logged and lets the animal stay. `use.Hitch` is the animal's slot, character and
+post.
+
 ## State
 
 `animals.In(world)` (in a serial step of that world) or, in your system factory, `animals.Current` (the framework's factory runs first for each

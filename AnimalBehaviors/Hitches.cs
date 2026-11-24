@@ -36,7 +36,8 @@ public static class Hitches
     /// <summary>
     /// The job as the engine offers it: on every marked hitching post, to animals (<c>AddJobOffer</c>).
     /// </summary>
-    public static ModJobOffer Offer(IReadOnlyList<string> posts) => new(Type, posts, AnimalText.Get("Hitch here"), ModJobTakers.Animals);
+    public static ModJobOffer Offer(IReadOnlyList<string> posts) =>
+        new(Type, posts, AnimalText.Get("Hitch here"), ModJobTakers.Animals) { Owners = ModJobOwners.Any };
 
     /// <summary>
     /// The post a character is hitched to, or null.
@@ -59,7 +60,7 @@ public static class Hitches
     public static void Unhitch(CharacterCold cold) => cold.Jobs.RemoveAll(j => j.Type == Type);
 
     /// <summary>
-    /// The living hitched animals whose post still stands finished; a hitch on a post that is gone or unfinished is taken off.
+    /// The living hitched animals whose post (any faction's) still stands finished; a hitch on a post that is gone or unfinished is taken off.
     /// </summary>
     public static List<Hitched> All(World world)
     {
@@ -92,13 +93,13 @@ public static class Hitches
     }
 
     /// <summary>
-    /// The finished player post a character is hitched to, or null (not hitched, or its post is gone, unfinished or not the player's). Reads only.
+    /// The finished post (any faction's) a character is hitched to, or null (not hitched, or its post is gone or unfinished). Reads only.
     /// </summary>
     public static BuildSite? Site(World world, CharacterCold cold)
     {
         if (PostOf(cold) is not { } post) return null;
 
-        return world.Buildings.Find(post) is { Complete: true } site && site.Owner == world.Player.Faction ? site : null;
+        return world.Buildings.Find(post) is { Complete: true } site ? site : null;
     }
 
     /// <summary>
