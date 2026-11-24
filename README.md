@@ -1,7 +1,10 @@
-# Meitou mod template
+# Animal Behaviors
 
-Template for a [MeitouClient](https://github.com/Meitou-Modding-Ecosystem/MeitouClient) code mod repo in the Meitou-Modding-Ecosystem
-org. GPL-3.0-or-later.
+The framework for animal mods in [MeitouClient](https://github.com/Meitou-Modding-Ecosystem/MeitouClient): the list of supported animals
+that any mod can add to, animal sexes, and the Hitched job that every mod's hitching posts share. Mod id `animal.behaviors`, no dependencies;
+what it does: [docs/animal-behaviors.md](docs/animal-behaviors.md). Husbandry depends on it. GPL-3.0-or-later.
+
+- Adding animals or your own hitching post from your mod: [docs/depending-on-animal-behaviors.md](docs/depending-on-animal-behaviors.md).
 
 - Build and run locally with Visual Studio, VS Code or the terminal (this repo's engine or the installed launcher, deployed to the game): [docs/play.md](docs/play.md).
 - Setting up the repos on your machine: [docs/local-development.md](docs/local-development.md).
@@ -13,35 +16,24 @@ org. GPL-3.0-or-later.
 - Turning `.glb` models (Meshy, Hi3D, Blender) into buildable structures, no FCS needed: [docs/structures.md](docs/structures.md);
   getting a generated model's polycount, size and textures right first: [docs/model-prep.md](docs/model-prep.md).
 
-## Use this template
-
-1. Create the repo from this template on GitHub (Use this template > Create a new repository), then clone it with
-   `git clone --recurse-submodules <your repo URL>`.
-2. Rename `ExampleMod` to your mod's name: the folders `ExampleMod` and `ExampleMod.Tests`, the files inside them named `ExampleMod*`, the
-   `AssemblyName`/`RootNamespace` in both `.csproj` files, the namespaces, and the paths in `MeitouMod.slnx` (rename that file too).
-3. In `meitou.json` set `id` (`<author-or-mod>.<name>`), `assemblies` and `entry`; keep the version only there.
-   Ask for a number block if the mod will claim task types or dialogue codes, and fill in `## Numbers` below.
-   In `.github/workflows/release.yml` set the tag prefix, `mod-folder` and `slug` (`<mod-name>`, as in the tag `<mod-name>-v<version>`).
-4. Open the `.slnx` in Visual Studio and press F5 ([docs/play.md](docs/play.md)).
-
 ## Numbers
 
-Task types (`AddGoalType`, `AddJobType`) and dialogue codes (`AddDialogueCondition`, `AddDialogueEffect`) are shared by every loaded mod, and the
-game refuses a mod that claims one already taken. Each mod claims numbers only inside its own block of 100
-([mod number blocks](https://github.com/TheIvoryDisaster/GutenStructure/blob/beta/docs/numbers.md)) and lists them here; `NumbersTests` checks
-the list against the block. Replace this paragraph with the mod's block line, e.g. `Block 4400-4499`, and a table:
+Task types and dialogue codes are shared by every loaded mod; Animal Behaviors claims only these, inside its block
+([mod number blocks](https://github.com/TheIvoryDisaster/GutenStructure/blob/beta/docs/numbers.md)). `NumbersTests` checks the list.
+
+Block 4900-4999
 
 | Number | Pool | Use |
 | --- | --- | --- |
+| 4901 | Task type | Job: Hitched (offered on every building marked as a hitching post, animals) |
 
 ## Layout
 
 - `engine/`: MeitouClient as a git submodule, pinned to the engine commit the mod builds against. `git pull` does not move it: after
   every pull run `powershell -ExecutionPolicy Bypass -File tools\Update-Local.ps1 -Clean -Build`
   ([keep clones current](docs/local-development.md#keep-clones-current)).
-- `<Mod>/`: the mod's project and `meitou.json`. `<Mod>.Tests/`: its tests (synthetic worlds, no game install needed).
-  `<Mod>.Data/` (optional): a generator that writes `<Mod>.mod` from the installed game. `<Mod>/Structures/` (optional): `.glb` models
-  imported as buildable structures on deploy ([docs/structures.md](docs/structures.md)).
+- `AnimalBehaviors/`: the mod's project and `meitou.json`. It adds no records (`AnimalBehaviors.mod` is empty). `AnimalBehaviors.Tests/`: its
+  tests (no game install needed).
 - `meitou.lock.json`: the framework releases the mods build against
   ([framework lock](https://github.com/TheIvoryDisaster/GutenStructure/blob/beta/docs/framework-lock.md)); the Framework update workflow moves it
   to new releases and merges when CI passes ([framework update](https://github.com/TheIvoryDisaster/GutenStructure/blob/beta/docs/framework-update.md)).
@@ -58,7 +50,8 @@ the list against the block. Replace this paragraph with the mod's block line, e.
 ## Branches
 
 PRs into `beta`; CI (build and tests) must pass. `beta` is promoted to `main` once tested in play, and production goes through a PR to
-`release`. Each merge into `release` tags it `<slug>-v<version>` and publishes the mod's zip (`.github/workflows/release.yml`) unless that
-tag exists; `tools\Tag-Release.ps1` is the manual fallback.
+`release`. Each merge into `release` tags it `animal-behaviors-v<version>` and publishes the mod's zip (`.github/workflows/release.yml`)
+unless that tag exists; `tools\Tag-Release.ps1` is the manual fallback. Each framework change merged into `beta` also publishes a prerelease
+`animal-behaviors-<version>-beta.<commit>` for dependents to lock (`.github/workflows/animal-behaviors-beta.yml`).
 
 - New-repository branch protections and permanent beta/main/release reviews: [docs/branch-policy.md](docs/branch-policy.md). Templates copy source; GutenStructure applies settings through reconciliation.

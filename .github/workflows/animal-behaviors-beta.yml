@@ -1,0 +1,31 @@
+# Publishes Animal Behaviors from beta as GitHub prereleases for dependents (Husbandry) to lock and test against
+# (docs/depending-on-animal-behaviors.md): animal-behaviors-<version>-beta.<commit> per framework change (never moved) and rolling
+# animal-behaviors-beta (AnimalBehaviors-beta.zip). Packaging: GutenStructure package-meitou-mod.yml, pinned as release.yml pins it.
+name: Animal Behaviors beta
+
+on:
+  push:
+    branches: [beta]
+    paths:
+      - AnimalBehaviors/**
+      - engine
+      - Directory.Build.props
+      - Directory.Build.rsp
+      - .github/workflows/animal-behaviors-beta.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  animal-behaviors:
+    if: github.ref == 'refs/heads/beta'
+    permissions:
+      contents: write
+    uses: TheIvoryDisaster/GutenStructure/.github/workflows/package-meitou-mod.yml@18f67b9121d10d27530bb45916e338f4e159eaa1
+    with:
+      mod-folder: AnimalBehaviors
+      slug: animal-behaviors
+      channel: beta
+      test-project: AnimalBehaviors.Tests
+      empty-data-mod: true

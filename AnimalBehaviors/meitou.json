@@ -1,0 +1,8 @@
+{
+  "id": "animal.behaviors",
+  "version": "0.1.0",
+  "apiVersion": 3,
+  "gameVersion": ">=0.22.2 <0.23.0",
+  "assemblies": ["AnimalBehaviors.dll"],
+  "entry": "AnimalBehaviors.AnimalBehaviorsMod"
+}
