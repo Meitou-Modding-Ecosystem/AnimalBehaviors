@@ -15,7 +15,7 @@ A mod that adds animals, gives them work or has its own hitching post builds on 
 `Initialize`. The last registration for a race wins, so a mod loaded later can override. `animals.SupportOf(race)` and
 `animals.Supports(cold, AnimalSupport.X)` answer what an animal may do; read the flag your behaviour needs.
 
-## Hitching posts
+## Hitching post
 
 Mark your BUILDING record in your data phase (`IModDataPhase.EditData`): `Sites.MarkHitch(record, capacity)` (capacity 0: no limit). The
 framework reads the marks in its `Initialize`, after every data phase, and offers its one Hitched job (4901) on every marked post, so your post
