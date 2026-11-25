@@ -61,6 +61,12 @@ public interface IAnimalBehaviorsRegistry
     /// Says what animals of a race may do. A later registration for the same race (from this mod or one loaded after it) replaces this one.
     /// </summary>
     void AddAnimal(AnimalKind kind);
+
+    /// <summary>
+    /// Adds terms for hitching to another faction's post (docs/depending-on-animal-behaviors.md "Other factions' posts"): asked when an animal is
+    /// hitched there and at each new game day it stays, in registration order; the first refusal unhitches it. With no rule such posts are free.
+    /// </summary>
+    void AddHitchRule(HitchRule rule);
 }
 
 /// <summary>
@@ -88,6 +94,17 @@ public interface IAnimalState
     /// over it, when full.
     /// </summary>
     bool TryHitch(World world, int slot, BuildSite post);
+
+    /// <summary>
+    /// The hitching post (any faction's) the animal in a slot is assigned to, or null (not hitched, dead, or its post is gone or unfinished).
+    /// Reads only.
+    /// </summary>
+    BuildSite? PostOf(World world, int slot);
+
+    /// <summary>
+    /// The living animals assigned to a hitching post, in slot order. Reads only.
+    /// </summary>
+    IReadOnlyList<Hitched> HitchedTo(World world, BuildSite post);
 }
 
 /// <summary>
