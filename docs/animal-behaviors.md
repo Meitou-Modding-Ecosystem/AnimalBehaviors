@@ -9,7 +9,8 @@ It adds no buildings or records: Husbandry's Hitching Post (and any other mod's 
 - **Job**: task type 4901 "Hitched" (README "Numbers"), **Hitch here** on every BUILDING a mod marked as a hitching post, for animals. The
   engine lets only the mod that claims a job type offer it, so the framework owns the one job and adds every marked post to its offer. The
   posts are separate structures; an animal is hitched to the one it was sent to. A post that is gone or unfinished lets its animals go.
-- **Other factions' posts**: the job is offered on any faction's finished post (the engine's `ModJobOffer.Owners = Any`). With no dependent's
+- **Other factions' posts**: the job is offered on any faction's finished post (the engine's `ModJobOffer.Owners = Any`, set by name: an
+  engine without it, every release so far, offers the player's posts only and the log says so). With no dependent's
   rule such a post is free. A dependent's hitch rule is asked when an animal is hitched to another faction's post and at each new game day it
   stays; it may charge, change relations or report a crime itself, or refuse, which unhitches the animal with the rule's text floating over it.
 - **Pen**: a hitched animal standing idle more than **Pen radius** (setting, default 100 game units, about 10 m) from its post walks back to

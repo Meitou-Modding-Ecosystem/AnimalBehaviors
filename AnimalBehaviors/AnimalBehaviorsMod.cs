@@ -70,6 +70,7 @@ public sealed class AnimalBehaviorsMod : IMod, IAnimalBehaviorsApi, IModDependen
         c.AddJobType(Hitches.Type, AnimalText.Get(Hitches.Name));
         if (posts.Count > 0) c.AddJobOffer(Hitches.Offer(posts));
         c.Log($"animal-behaviors: hitching posts: {(posts.Count == 0 ? "none" : string.Join(", ", posts))}");
+        if (!Hitches.OffersForeign) c.Log("animal-behaviors: this engine offers jobs on the player's buildings only, so other factions' posts are off");
     }
 
     /// <summary>
