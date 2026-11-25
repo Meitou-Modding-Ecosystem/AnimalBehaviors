@@ -129,7 +129,7 @@ public sealed class AnimalRegistry
     /// <summary>
     /// Throws once registration has ended.
     /// </summary>
-    void CheckOpen()
+    public void CheckOpen()
     {
         if (Frozen) throw new InvalidOperationException("Animal Behaviors takes registrations only in a mod's Initialize, before the first world.");
     }

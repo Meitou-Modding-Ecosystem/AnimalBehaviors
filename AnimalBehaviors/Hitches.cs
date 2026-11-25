@@ -1,3 +1,4 @@
+using System.Reflection;
 using Meitou.Data.Gameplay.Ai;
 using Meitou.Simulation;
 using Meitou.Simulation.Bodies;
@@ -34,9 +35,33 @@ public static class Hitches
     public const float AdultAge = 0.6f;
 
     /// <summary>
-    /// The job as the engine offers it: on every marked hitching post, to animals (<c>AddJobOffer</c>).
+    /// The engine's offer option for any faction's buildings (<c>ModJobOffer.Owners</c>), or null on an engine without it.
     /// </summary>
-    public static ModJobOffer Offer(IReadOnlyList<string> posts) => new(Type, posts, AnimalText.Get("Hitch here"), ModJobTakers.Animals);
+    static readonly PropertyInfo? OwnersOption = typeof(ModJobOffer).GetProperty("Owners");
+
+    /// <summary>
+    /// The value of <c>ModJobOwners.Any</c>.
+    /// </summary>
+    const int AnyOwner = 1;
+
+    /// <summary>
+    /// The job as the engine offers it: on every marked hitching post, to animals (<c>AddJobOffer</c>), any faction's posts included where the
+    /// engine has the option.
+    /// </summary>
+    public static ModJobOffer Offer(IReadOnlyList<string> posts)
+    {
+        var offer = new ModJobOffer(Type, posts, AnimalText.Get("Hitch here"), ModJobTakers.Animals);
+
+        // Set by name: Owners is a MeitouClient fork option no release has yet, and a direct reference would refuse the mod on releases. Without it
+        // the engine offers the job on the player's posts only.
+        OwnersOption?.SetValue(offer, Enum.ToObject(OwnersOption.PropertyType, AnyOwner));
+        return offer;
+    }
+
+    /// <summary>
+    /// Whether the running engine offers the job on other factions' posts.
+    /// </summary>
+    public static bool OffersForeign => OwnersOption is not null;
 
     /// <summary>
     /// The post a character is hitched to, or null.
@@ -59,7 +84,7 @@ public static class Hitches
     public static void Unhitch(CharacterCold cold) => cold.Jobs.RemoveAll(j => j.Type == Type);
 
     /// <summary>
-    /// The living hitched animals whose post still stands finished; a hitch on a post that is gone or unfinished is taken off.
+    /// The living hitched animals whose post (any faction's) still stands finished; a hitch on a post that is gone or unfinished is taken off.
     /// </summary>
     public static List<Hitched> All(World world)
     {
@@ -92,13 +117,13 @@ public static class Hitches
     }
 
     /// <summary>
-    /// The finished player post a character is hitched to, or null (not hitched, or its post is gone, unfinished or not the player's). Reads only.
+    /// The finished post (any faction's) a character is hitched to, or null (not hitched, or its post is gone or unfinished). Reads only.
     /// </summary>
     public static BuildSite? Site(World world, CharacterCold cold)
     {
         if (PostOf(cold) is not { } post) return null;
 
-        return world.Buildings.Find(post) is { Complete: true } site && site.Owner == world.Player.Faction ? site : null;
+        return world.Buildings.Find(post) is { Complete: true } site ? site : null;
     }
 
     /// <summary>

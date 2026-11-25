@@ -29,6 +29,11 @@ public sealed class AnimalBehaviorsSystem : ITickSystem, IStateHashed, IModSaveD
     readonly HitchPosts _posts;
 
     /// <summary>
+    /// The animals at other factions' posts and their terms.
+    /// </summary>
+    readonly ForeignPosts _foreign;
+
+    /// <summary>
     /// The mod's random purpose (the pens' strolls).
     /// </summary>
     readonly RngPurpose _purpose;
@@ -41,10 +46,11 @@ public sealed class AnimalBehaviorsSystem : ITickSystem, IStateHashed, IModSaveD
     /// <summary>
     /// A system for one world.
     /// </summary>
-    public AnimalBehaviorsSystem(AnimalSettings settings, HitchPosts posts, RngPurpose purpose)
+    public AnimalBehaviorsSystem(AnimalSettings settings, HitchPosts posts, ForeignPosts foreign, RngPurpose purpose)
     {
         _settings = settings;
         _posts = posts;
+        _foreign = foreign;
         _purpose = purpose;
         TradeWindowGender.Sexes = Sexes;
     }
@@ -60,7 +66,7 @@ public sealed class AnimalBehaviorsSystem : ITickSystem, IStateHashed, IModSaveD
     {
         RestoreHitches(world);
         var settings = _settings.Copy();
-        var hitched = _posts.Enforce(world, Hitches.All(world));
+        var hitched = _foreign.Check(world, _posts.Enforce(world, Hitches.All(world)));
         foreach (var h in hitched)
             if ((h.Slot + world.Tick) % PenEveryTicks == 0) Pens.Keep(world, h, settings, _purpose);
 
@@ -99,7 +105,7 @@ public sealed class AnimalBehaviorsSystem : ITickSystem, IStateHashed, IModSaveD
     /// <summary>
     /// The sidecar layout's version.
     /// </summary>
-    public const int SaveVersion = 1;
+    public const int SaveVersion = 2;
 
     /// <summary>
     /// Hitches read from a save or imported, waiting for the next tick to find their characters by portrait serial.
@@ -131,6 +137,32 @@ public sealed class AnimalBehaviorsSystem : ITickSystem, IStateHashed, IModSaveD
             w.Write(serial);
             w.Write(female);
         }
+
+        WriteForeign(w);
+    }
+
+    /// <summary>
+    /// Version 2: the day the foreign posts' rules were last asked and the animals let stay at them, so a load asks no rule again.
+    /// </summary>
+    void WriteForeign(BinaryWriter w)
+    {
+        w.Write(_foreign.Day);
+        w.Write(_foreign.Seen.Count);
+        foreach (var (key, post) in _foreign.Seen)
+        {
+            w.Write(key);
+            w.Write(post);
+        }
+    }
+
+    /// <summary>
+    /// Reads what <see cref="WriteForeign"/> wrote.
+    /// </summary>
+    void ReadForeign(BinaryReader r)
+    {
+        _foreign.Day = r.ReadInt64();
+        int seen = r.ReadInt32();
+        for (int k = 0; k < seen; k++) _foreign.Seen[r.ReadUInt32()] = r.ReadString();
     }
 
     public void Read(Stream stream)
@@ -146,6 +178,8 @@ public sealed class AnimalBehaviorsSystem : ITickSystem, IStateHashed, IModSaveD
 
         int sexes = r.ReadInt32();
         for (int k = 0; k < sexes; k++) Sexes.Assigned[r.ReadUInt32()] = r.ReadBoolean();
+
+        if (version >= 2) ReadForeign(r);
     }
 
     /// <summary>
@@ -199,6 +233,20 @@ public sealed class AnimalBehaviorsSystem : ITickSystem, IStateHashed, IModSaveD
 
         hasher.Add(_pending?.Count ?? -1);
         HashHitches(ref hasher);
+        HashForeign(ref hasher);
+    }
+
+    /// <summary>
+    /// The foreign posts' day and the animals let stay at them, in key order.
+    /// </summary>
+    void HashForeign(ref StateHasher hasher)
+    {
+        hasher.Add(_foreign.Day);
+        foreach (var (key, post) in _foreign.Seen.OrderBy(p => p.Key))
+        {
+            hasher.Add(key);
+            hasher.Add(Rng.StableHash(post));
+        }
     }
 
     /// <summary>
