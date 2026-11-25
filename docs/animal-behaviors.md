@@ -8,7 +8,11 @@ It adds no buildings or records: Husbandry's Hitching Post (and any other mod's 
 
 - **Job**: task type 4901 "Hitched" (README "Numbers"), **Hitch here** on every BUILDING a mod marked as a hitching post, for animals. The
   engine lets only the mod that claims a job type offer it, so the framework owns the one job and adds every marked post to its offer. The
-  posts are separate structures; an animal is hitched to the one it was sent to. A post that is gone or not the player's lets its animals go.
+  posts are separate structures; an animal is hitched to the one it was sent to. A post that is gone or unfinished lets its animals go.
+- **Other factions' posts**: the job is offered on any faction's finished post (the engine's `ModJobOffer.Owners = Any`, set by name: an
+  engine without it, every release so far, offers the player's posts only and the log says so). With no dependent's
+  rule such a post is free. A dependent's hitch rule is asked when an animal is hitched to another faction's post and at each new game day it
+  stays; it may charge, change relations or report a crime itself, or refuse, which unhitches the animal with the rule's text floating over it.
 - **Pen**: a hitched animal standing idle more than **Pen radius** (setting, default 100 game units, about 10 m) from its post walks back to
   within half the radius; one inside strolls to another spot now and then (setting **Grazing**). Anything else it is doing comes first, so it
   leaves the pen only for a food run to a feeder or food on the ground, a fight, a job of its jobs list (Follow or Bodyguard: remove it to keep
@@ -18,7 +22,8 @@ It adds no buildings or records: Husbandry's Hitching Post (and any other mod's 
   animals)" floating over each. A dependent hitching an animal itself (a newborn) asks first (`TryHitch`), which refuses a full post with
   the same warning.
 - **Saving**: the engine saves no mod jobs, so the hitches (portrait serial and post) are kept in the sidecar and put back at the first tick
-  after a load.
+  after a load. Sidecar v2 adds the day the rules were last asked and the animals let stay at other factions' posts, so a load asks no rule
+  again.
 
 ## Sexes
 

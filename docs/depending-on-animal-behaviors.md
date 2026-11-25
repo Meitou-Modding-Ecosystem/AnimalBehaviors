@@ -6,7 +6,7 @@ A mod that adds animals, gives them work or has its own hitching post builds on 
 
 - Lock a release in `meitou.lock.json` (slug `animal-behaviors`; a beta prerelease `animal-behaviors-<version>-beta.<commit>` to test, never
   the rolling `animal-behaviors-beta`), reference `AnimalBehaviors.dll` with `Private="false"`, and declare it in `meitou.json`:
-  `"dependencies": { "animal.behaviors": ">=0.1.0 <0.2.0" }`.
+  `"dependencies": [{ "id": "animal.behaviors", "version": ">=0.2.0 <0.3.0" }]` (a list: Meitou refuses an object).
 - Get the API in your `Initialize`: `var animals = c.Dependency<IAnimalBehaviorsApi>("animal.behaviors");`.
 
 ## Animals
@@ -19,9 +19,18 @@ A mod that adds animals, gives them work or has its own hitching post builds on 
 
 Mark your BUILDING record in your data phase (`IModDataPhase.EditData`): `Sites.MarkHitch(record, capacity)` (capacity 0: no limit). The
 framework reads the marks in its `Initialize`, after every data phase, and offers its one Hitched job (4901) on every marked post, so your post
-and Husbandry's stay separate structures with the same job. `Hitches.PostOf(cold)` gives an animal's post and `Hitches.All(world)` every
-hitched animal with its post. To keep an animal working at your own post in a pen round it, call
+and Husbandry's stay separate structures with the same job. To find which post an animal is assigned to, use the state's `PostOf` and
+`HitchedTo` (State below). To keep an animal working at your own post in a pen round it, call
 `Pens.Keep(world, new Hitched(slot, cold, post), animals.Settings.Copy(), purpose)` once a game second per animal.
+
+## Other factions' posts
+
+Animals may be hitched to any faction's post, free unless a rule says otherwise. Add terms in your `Initialize`:
+`animals.For(c).AddHitchRule(use => ...)`. The framework asks every rule, in registration order, when an animal is hitched to another faction's
+post (`use.First`) and at each new game day it stays there, in its serial step, so a rule may change the world: take cats from the player,
+change `use.Owner`'s relations, report a crime. Return null to let it stay, or a text to refuse it: the animal is unhitched and the text floats
+over it, and later rules are not asked. A rule that throws is logged and lets the animal stay. `use.Hitch` is the animal's slot, character and
+post.
 
 ## State
 
@@ -31,4 +40,6 @@ world) gives `IAnimalState`:
 - `Sexes`: `Female(cold)`; write `Sexes.Assigned[serial]` for an animal you made with a set sex (saved by the framework).
 - `TryHitch(world, slot, post)`: hitches an animal (a newborn to its mother's post) unless the post is full, which floats a warning and returns
   false. `Capacity(post)` is the post's cap.
+- `PostOf(world, slot)`: the hitching post the animal in a slot is assigned to (any mod's post), or null when it isn't hitched, is dead or its
+  post is gone or unfinished. `HitchedTo(world, post)`: the living animals assigned to a post, in slot order. Both only read.
 - `ImportHitches(...)`: hitches to put back at the next tick, for a mod whose older saves kept them.
